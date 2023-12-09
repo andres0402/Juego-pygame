@@ -1,5 +1,4 @@
 from contextlib import redirect_stdout
-from telnetlib import LINEMODE
 import pygame
 import sys
 import time
@@ -109,8 +108,18 @@ def generarEnemigos():
         if not player.colliderect(enemy.rect):
             enemies.append(enemy)
 
+def generarEnemigosHome():
+    cantEnemies = 7
+    player = pygame.Rect(player_x, player_y, player_size, player_size)
+    for i in range (cantEnemies):
+        xEnemie = random.randint(1, 1000)
+        yEnemie = random.randint(1, 800)
+        enemy = Enemy(xEnemie, yEnemie)
+        if not player.colliderect(enemy.rect):
+            enemies.append(enemy)
+
 #Generación de enemigos inciales
-generarEnemigos()
+generarEnemigosHome()
 
 while True:
 
@@ -118,16 +127,53 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
+    
+    screen.fill(black)
 
     text_surface = fontTitle.render(f'GALAXION', True, red)
-    text_rect = text_surface.get_rect()
-    text_rect.center = (width // 2, height // 2 - 10)
-    screen.blit(text_surface, text_rect)
+    text_rect_title = text_surface.get_rect()
+    text_rect_title.center = (width // 2, height // 2 - 10)
+    screen.blit(text_surface, text_rect_title)
 
     text_surface = fontPuntos.render(f'Presiona espacio para jugar', True, white)
-    text_rect = text_surface.get_rect()
-    text_rect.center = (width // 2, height // 2 + 20)
-    screen.blit(text_surface, text_rect)
+    text_rect_info = text_surface.get_rect()
+    text_rect_info.center = (width // 2, height // 2 + 20)
+    screen.blit(text_surface, text_rect_info)
+
+    
+    for enemy in enemies:
+        direction = random.randint(1, 8)
+        
+        if direction == 1 and (enemy.rect.y - 1) >= 0:
+            for i in range (dificultad):
+                enemy.rect.y -= 1
+        elif direction == 2 and (enemy.rect.x + 1) <= width:
+            for i in range (dificultad):
+                enemy.rect.x += 1
+        elif direction == 3 and (enemy.rect.y + 1) <= height:
+            for i in range (dificultad):
+                enemy.rect.y += 1
+        elif direction == 4 and (enemy.rect.x - 1) >= 0:
+            for i in range (dificultad):
+                enemy.rect.x -= 1
+        elif direction == 5 and (enemy.rect.x + 1) <= width and (enemy.rect.y - 1) >= 0:
+            for i in range (dificultad):
+                enemy.rect.x += 1
+                enemy.rect.y -= 1
+        elif direction == 6 and (enemy.rect.x + 1) <= width and (enemy.rect.y + 1) <= height:
+            for i in range (dificultad):
+                enemy.rect.x += 1
+                enemy.rect.y += 1
+        elif direction == 7 and (enemy.rect.x - 1) >= 0 and (enemy.rect.y + 1) <= height:
+            for i in range (dificultad):
+                enemy.rect.x -= 1
+                enemy.rect.y += 1
+        elif direction == 8 and (enemy.rect.x - 1) >= 0 and (enemy.rect.y - 1) >= 0:
+            for i in range (dificultad):
+                enemy.rect.x -= 1
+                enemy.rect.y -= 1
+        if not text_rect_title.colliderect(enemy.rect) and not text_rect_info.colliderect(enemy.rect):
+            enemy.draw()
 
     pygame.display.flip()
 
@@ -135,8 +181,8 @@ while True:
     if keys[pygame.K_SPACE]:
         break
 
-
-
+enemies = []
+generarEnemigos()
 # Bucle principal del juego
 while True:
     while alive:
