@@ -76,6 +76,28 @@ class Bullet:
     def moveLeft(self):
         self.rect.x -= bullet_speed
         self.rect = pygame.Rect(self.rect.x, self.rect.y, 20, 10)
+    
+    def moveUpLeft(self):
+        self.rect.y -= bullet_speed - 8
+        self.rect.x -= bullet_speed - 8
+        self.rect = pygame.Rect(self.rect.x, self.rect.y, 20, 10)
+    
+    def moveUpRight(self):
+        self.rect.y -= bullet_speed - 8
+        self.rect.x += bullet_speed - 8
+        self.rect = pygame.Rect(self.rect.x, self.rect.y, 20, 10)
+    
+    def moveDownLeft(self):
+        self.rect.y += bullet_speed - 8
+        self.rect.x -= bullet_speed - 8
+        self.rect = pygame.Rect(self.rect.x, self.rect.y, 20, 10)
+
+    def moveDownRight(self):
+        self.rect.y += bullet_speed - 8
+        self.rect.x += bullet_speed - 8
+        self.rect = pygame.Rect(self.rect.x, self.rect.y, 20, 10)
+
+
 
     def draw(self):
         pygame.draw.rect(screen, red, self.rect)
@@ -118,29 +140,7 @@ def generarEnemigosHome():
         if not player.colliderect(enemy.rect):
             enemies.append(enemy)
 
-#Generación de enemigos inciales
-generarEnemigosHome()
-
-while True:
-
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
-    
-    screen.fill(black)
-
-    text_surface = fontTitle.render(f'GALAXION', True, red)
-    text_rect_title = text_surface.get_rect()
-    text_rect_title.center = (width // 2, height // 2 - 10)
-    screen.blit(text_surface, text_rect_title)
-
-    text_surface = fontPuntos.render(f'Presiona espacio para jugar', True, white)
-    text_rect_info = text_surface.get_rect()
-    text_rect_info.center = (width // 2, height // 2 + 20)
-    screen.blit(text_surface, text_rect_info)
-
-    
+def moverEnemigos():
     for enemy in enemies:
         direction = random.randint(1, 8)
         
@@ -172,6 +172,32 @@ while True:
             for i in range (dificultad):
                 enemy.rect.x -= 1
                 enemy.rect.y -= 1
+
+
+#Generación de enemigos inciales
+generarEnemigosHome()
+
+while True:
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+    
+    screen.fill(black)
+
+    text_surface = fontTitle.render(f'GALAXION', True, red)
+    text_rect_title = text_surface.get_rect()
+    text_rect_title.center = (width // 2, height // 2 - 10)
+    screen.blit(text_surface, text_rect_title)
+
+    text_surface = fontPuntos.render(f'Presiona espacio para jugar', True, white)
+    text_rect_info = text_surface.get_rect()
+    text_rect_info.center = (width // 2, height // 2 + 20)
+    screen.blit(text_surface, text_rect_info)
+
+    moverEnemigos()
+    for enemy in enemies:
         if not text_rect_title.colliderect(enemy.rect) and not text_rect_info.colliderect(enemy.rect):
             enemy.draw()
 
@@ -184,6 +210,8 @@ while True:
 enemies = []
 generarEnemigos()
 # Bucle principal del juego
+
+
 while True:
     while alive:
         for event in pygame.event.get():
@@ -207,6 +235,19 @@ while True:
         if keys[pygame.K_s] and (player_y + player_size + player_speed) <= height:
             orientation = 3
             player_y += player_speed
+
+        if keys[pygame.K_a] and (player_x - player_speed) >= 0 and keys[pygame.K_w] and (player_y - player_speed) >= 0:
+            orientation = 5
+        if keys[pygame.K_d] and (player_x + player_size + player_speed) <= width and keys[pygame.K_w] and (player_y - player_speed) >= 0:
+            orientation = 6
+
+        if keys[pygame.K_s] and (player_y + player_size + player_speed) <= height and keys[pygame.K_a] and (player_x - player_speed) >= 0:
+            orientation = 7
+
+        if keys[pygame.K_s] and (player_y + player_size + player_speed) <= height and keys[pygame.K_d] and (player_x + player_size + player_speed) <= width:
+            orientation = 8
+
+
 
         if keys[pygame.K_LEFT] and (player_x - player_speed) >= 0:
             orientation = 4
@@ -235,6 +276,16 @@ while True:
                         new_bullet.moveDown()
                     elif orientation == 4:
                         new_bullet.moveLeft()
+                    elif orientation == 5:
+                        new_bullet.moveUpLeft()
+                    elif orientation == 6:
+                        new_bullet.moveUpRight()
+                    elif orientation == 7:
+                        new_bullet.moveDownLeft()
+                    elif orientation == 8:
+                        new_bullet.moveDownRight()
+                        
+
                     pygame.display.flip()
 
                     for enemy in enemies:
@@ -300,40 +351,32 @@ while True:
         bullets_text = font.render(f'AMMO: {balas}', True, white)
         screen.blit(bullets_text, (10, 10))
 
+        moverEnemigos()
+
         for enemy in enemies:
-            direction = random.randint(1, 8)
-            
-            if direction == 1 and (enemy.rect.y - 1) >= 0:
-                for i in range (dificultad):
-                    enemy.rect.y -= 1
-            elif direction == 2 and (enemy.rect.x + 1) <= width:
-                for i in range (dificultad):
-                    enemy.rect.x += 1
-            elif direction == 3 and (enemy.rect.y + 1) <= height:
-                for i in range (dificultad):
-                    enemy.rect.y += 1
-            elif direction == 4 and (enemy.rect.x - 1) >= 0:
-                for i in range (dificultad):
-                    enemy.rect.x -= 1
-            elif direction == 5 and (enemy.rect.x + 1) <= width and (enemy.rect.y - 1) >= 0:
-                for i in range (dificultad):
-                    enemy.rect.x += 1
-                    enemy.rect.y -= 1
-            elif direction == 6 and (enemy.rect.x + 1) <= width and (enemy.rect.y + 1) <= height:
-                for i in range (dificultad):
-                    enemy.rect.x += 1
-                    enemy.rect.y += 1
-            elif direction == 7 and (enemy.rect.x - 1) >= 0 and (enemy.rect.y + 1) <= height:
-                for i in range (dificultad):
-                    enemy.rect.x -= 1
-                    enemy.rect.y += 1
-            elif direction == 8 and (enemy.rect.x - 1) >= 0 and (enemy.rect.y - 1) >= 0:
-                for i in range (dificultad):
-                    enemy.rect.x -= 1
-                    enemy.rect.y -= 1
-            
             enemy.draw()
-                    
+
+        if keys[pygame.K_ESCAPE]:
+            paused = True
+
+            while paused:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        pygame.quit()
+                        sys.exit()
+
+                text_surface = fontPuntos.render('PAUSA', True, white)
+                text_rect_info = text_surface.get_rect()
+                text_rect_info.center = (width // 2, height // 2)
+                screen.blit(text_surface, text_rect_info)
+
+                pygame.display.flip()
+
+                keys = pygame.key.get_pressed()
+
+                if keys[pygame.K_SPACE]:
+                    paused = False
+
                 
 
         # Actualizar la pantalla
@@ -341,6 +384,7 @@ while True:
 
         # Controlar la velocidad del bucle
         pygame.time.Clock().tick(60)
+
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
