@@ -175,7 +175,6 @@ def moverEnemigos():
 generarEnemigosHome()
 while True:
     while True:
-
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -204,6 +203,38 @@ while True:
         if keys[pygame.K_SPACE]:
             inGame = True
             break
+
+        if keys[pygame.K_ESCAPE]:
+            while True:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        pygame.quit()
+                        sys.exit()
+                screen.fill(black)
+
+                text_surface = fontPuntos.render(f'¿Deseas salir? (s/n)', True, white)
+                text_rect_info = text_surface.get_rect()
+                text_rect_info.center = (width // 2, height // 2)
+                screen.blit(text_surface, text_rect_info)
+
+                moverEnemigos()
+
+                for enemy in enemies:
+                    if not text_rect_info.colliderect(enemy.rect):
+                        enemy.draw()
+                
+                pygame.display.flip()
+
+                keys = pygame.key.get_pressed()
+                if keys[pygame.K_s]:
+                    pygame.quit()
+                    sys.exit()
+
+                if keys[pygame.K_n]:
+                    break
+
+                
+
 
     enemies = []
     generarEnemigos()
