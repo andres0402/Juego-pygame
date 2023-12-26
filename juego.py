@@ -116,6 +116,28 @@ class Enemy:
     def draw(self):
         pygame.draw.rect(screen, red, self.rect)
 
+class Boton:
+    def __init__(self, x, y, ancho, alto, color, texto):
+        self.rect = pygame.Rect(x, y, ancho, alto)
+        self.color = color
+        self.texto = texto
+
+    def dibujar(self, pantalla, contorno=False):
+        pygame.draw.rect(pantalla, self.color, self.rect)
+        fuente = pygame.font.Font(None, 36)
+        texto = fuente.render(self.texto, True, white)
+        texto_rect = texto.get_rect(center=self.rect.center)
+        pantalla.blit(texto, texto_rect)
+
+        if contorno:
+            pygame.draw.rect(pantalla, white, self.rect, 2)
+
+    def clic_en_boton(self, evento):
+        if evento.type == pygame.MOUSEBUTTONDOWN and evento.button == 1:
+            return self.rect.collidepoint(evento.pos)
+        return False
+
+
 enemies = []
 def generarEnemigos():
     cantEnemies = random.randint(1, 7)
@@ -170,15 +192,21 @@ def moverEnemigos():
                 enemy.rect.x -= 1
                 enemy.rect.y -= 1
 
+    
 
 #Generación de enemigos inciales
 generarEnemigosHome()
+boton = Boton(width // 2 - 100, height // 2 + 20, 200, 50, red, "Jugar")
 while True:
     while True:
+        jugar = False
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+
+            if boton.clic_en_boton(event):
+                jugar = True
         
         screen.fill(black)
 
@@ -187,22 +215,34 @@ while True:
         text_rect_title.center = (width // 2, height // 2 - 10)
         screen.blit(text_surface, text_rect_title)
 
+        # Crear un botón
+
+        """
         text_surface = fontPuntos.render(f'Presiona espacio para jugar', True, white)
         text_rect_info = text_surface.get_rect()
         text_rect_info.center = (width // 2, height // 2 + 20)
-        screen.blit(text_surface, text_rect_info)
+        screen.blit(text_surface, text_rect_info)"""
 
         moverEnemigos()
         for enemy in enemies:
-            if not text_rect_title.colliderect(enemy.rect) and not text_rect_info.colliderect(enemy.rect):
+            if not boton.rect.colliderect(enemy.rect):
                 enemy.draw()
+
+        keys = pygame.key.get_pressed()
+        """if keys[pygame.K_SPACE]:
+            inGame = True
+            break
+"""
+
+        if jugar:
+            inGame = True
+            alive = True
+            break
+        
+        boton.dibujar(screen, contorno=True)
 
         pygame.display.flip()
 
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_SPACE]:
-            inGame = True
-            break
 
         if keys[pygame.K_ESCAPE]:
             while True:
@@ -385,6 +425,7 @@ while True:
             for enemy in enemies:
                 enemy.draw()
 
+            #Pausa
             if keys[pygame.K_ESCAPE]:
                 paused = True
 
@@ -461,6 +502,45 @@ while True:
 
 
         keys = pygame.key.get_pressed()
+
+        if keys[pygame.K_ESCAPE]:
+                paused = True
+
+                while paused:
+                    for event in pygame.event.get():
+                        if event.type == pygame.QUIT:
+                            pygame.quit()
+                            sys.exit()
+
+                    text_surface = font2.render('Pulsa [m] para volver al menú', True, yellow)
+                    text_rect_info = text_surface.get_rect()
+                    text_rect_info.center = (width // 2, height // 2 + 25)
+                    screen.blit(text_surface, text_rect_info)
+
+                    keys = pygame.key.get_pressed()
+
+                    if keys[pygame.K_SPACE]:
+                        paused = False
+                    
+
+                    if keys[pygame.K_m]:
+                        paused = False
+                        alive = False
+                        inGame = False
+                        player_x = width // 2 - player_size // 2
+                        player_y = height // 2 - player_size // 2
+                        orientation = 1
+                        balas = max_bullets
+                        hayAMMO = True
+                        newRecord = False
+                        enemies = []
+                        generarEnemigosHome()
+                        puntos = 0
+                        dificultad = 7
+                        nivel = 1
+
+                    pygame.display.flip()
+
         screen.blit(text_surface, text_rect)
         if keys[pygame.K_SPACE] and not alive:
             alive = True
